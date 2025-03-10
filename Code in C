@@ -1,0 +1,124 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX_NAME_LENGTH 50
+#define MAX_ID_LENGTH 11
+#define MAX_CITY_LENGTH 50
+#define MAX_STUDENTS 100
+#define MAX_RESIDENTS 100
+#define MAX_STUDENT_CODE_LENGTH 7
+
+// Structure definitions
+typedef struct {
+    char studentCode[MAX_STUDENT_CODE_LENGTH];
+    char name[MAX_NAME_LENGTH];
+    char idCode[MAX_ID_LENGTH];
+} Student;
+
+typedef struct {
+    char idCode[MAX_ID_LENGTH];
+    char city[MAX_CITY_LENGTH];
+} Resident;
+
+// Prototypes 
+int readStudents(Student[], const char *);
+int readResidents(Resident[], const char *);
+void findStudentsByResidence(const Student[], int, const Resident[], int, const char *, Student[], int *);
+void printMatchingStudents(const Student[], int);
+void getUserResidence(char *, size_t);
+
+// Main function
+int main() {
+    // ... (rest of the main function is the same)
+    Student students[MAX_STUDENTS];
+    Resident residents[MAX_RESIDENTS];
+    char residence[MAX_CITY_LENGTH];
+    Student matchingStudents[MAX_STUDENTS];
+    int matchingCount = 0;
+
+    // Input
+    int numStudents = readStudents(students, "F1.txt");
+    int numResidents = readResidents(residents, "F2.txt");
+
+    if (numStudents == -1 || numResidents == -1) {
+        return 1; // Exit if file reading failed
+    }
+
+    getUserResidence(residence, sizeof(residence));
+
+    // Process
+    findStudentsByResidence(students, numStudents, residents, numResidents, residence, matchingStudents, &matchingCount);
+
+    // Output
+    printMatchingStudents(matchingStudents, matchingCount);
+
+    return 0;
+}
+
+// Function to read student data from file
+int readStudents(Student students[], const char *filename) {
+    // ... (function implementation is the same)
+    FILE *file = fopen(filename, "r");
+    if (file == NULL) {
+        perror("Error opening F1.txt");
+        return -1;
+    }
+
+    int count = 0;
+    while (count < MAX_STUDENTS && fscanf(file, "%6s %49s %10s", students[count].studentCode, students[count].name, students[count].idCode) == 3) {
+        count++;
+    }
+
+    fclose(file);
+    return count;
+}
+
+// Function to read resident data from file
+int readResidents(Resident residents[], const char *filename) {
+    // ... (function implementation is the same)
+    FILE *file = fopen(filename, "r");
+    if (file == NULL) {
+        perror("Error opening F2.txt");
+        return -1;
+    }
+
+    int count = 0;
+    while (count < MAX_RESIDENTS && fscanf(file, "%10s %49s", residents[count].idCode, residents[count].city) == 2) {
+        count++;
+    }
+
+    fclose(file);
+    return count;
+}
+
+// Function to find students by residence
+void findStudentsByResidence(const Student students[], int numStudents, const Resident residents[], int numResidents, const char *residence, Student matchingStudents[], int *matchingCount) {
+    // ... (function implementation is the same)
+    *matchingCount = 0;
+    for (int i = 0; i < numStudents; i++) {
+        for (int j = 0; j < numResidents; j++) {
+            if (strcmp(students[i].idCode, residents[j].idCode) == 0 && strcmp(residents[j].city, residence) == 0) {
+                matchingStudents[*matchingCount] = students[i];
+                (*matchingCount)++;
+                break;
+            }
+        }
+    }
+}
+
+// Function to print matching students
+void printMatchingStudents(const Student matchingStudents[], int matchingCount) {
+    // ... (function implementation is the same)
+    for (int i = 0; i < matchingCount; i++) {
+        printf("Student Code: %s, Name: %s, ID: %s\n", matchingStudents[i].studentCode, matchingStudents[i].name, matchingStudents[i].idCode);
+    }
+}
+
+// Function to get user residence input
+void getUserResidence(char *residence, size_t size) {
+    // ... (function implementation is the same)
+    printf("Enter residence: ");
+    fgets(residence, size, stdin);
+    residence[strcspn(residence, "\n")] = 0;
+}
